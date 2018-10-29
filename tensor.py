@@ -70,7 +70,12 @@ class Tensor(object):
             return Tensor(self.data + other.data)
 
     def __repr__(self):
-        return str(self.data.__repr__())
+        show_shape = self.data.shape
+        show_id = self.id.__repr__()
+        show_autograd = self.autograd
+        id_and_shape = f"Tensor {show_id}: Shape = {show_shape}, "
+        is_autograd = f"autograd = {show_autograd}\n"
+        return id_and_shape + is_autograd
 
     def __str__(self):
         return str(self.data.__str__())
