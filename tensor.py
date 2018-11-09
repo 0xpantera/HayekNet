@@ -65,14 +65,24 @@ class Tensor(object):
                 self.creators[0].backward(self.grad, self)
                 self.creators[1].backward(self.grad, self)
 
+            if self.creation_op == "neg":
+                self.creators[0].backward(self.grad.__neg__())
+
     def __add__(self, other):
         if self.autograd and other.autograd:
             return Tensor(self.data + other.data,
                           autograd=True,
                           creators=[self, other],
                           creation_op="add")
+
+    def __neg__(self):
+        if self.autograd:
+            return Tensor(self.data * -1,
+                          autograd=True,
+                          creators=[self],
+                          creation_op="neg")
         else:
-            return Tensor(self.data + other.data)
+            return Tensor(self.data * -1)
 
     def __repr__(self):
         show_shape = self.data.shape
