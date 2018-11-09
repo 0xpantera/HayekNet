@@ -15,18 +15,20 @@ class Tensor(object):
         self.grad = None
         self.autograd = autograd
         self.children = {}
-        if not id:
+        if id is None:
             self.id = np.random.randint(0, 100000)
         else:
             self.id = id
 
-        if creators:
+        # Keep track of children
+        if creators is not None:
             for c in creators:
                 if self.id not in c.children:
                     c.children[self.id] = 1
                 else:
                     c.children[self.id] += 1
 
+    # Check if Tensor has received correct # of gradients from children
     def all_children_grads_accounted_for(self):
         for id, cnt in self.children.items():
             if cnt != 0:
@@ -35,13 +37,15 @@ class Tensor(object):
 
     def backward(self, grad=None, grad_origin=None):
         if self.autograd:
-            if grad_origin:
+            # Check if we can backprop or are still awaiting gradients
+            if grad_origin is not None:
                 if self.children[grad_origin.id] == 0:
                     raise Exception("Can't backpropagate more than once")
                 else:
                     self.children[grad_origin.id] -= 1
 
-        if not self.grad:
+        # Accumulate gradients from several children
+        if self.grad is None:
             self.grad = grad
         else:
             self.grad += grad
@@ -53,8 +57,9 @@ class Tensor(object):
         # backprop into and if all gradients (from children)
         # are accounted for override waiting for children if
         # backprop was called on this variable directly
-        if (self.creators and (self.all_children_grads_accounted_for() or
-                               not grad_origin)):
+        if (self.creators is not None and
+                (self.all_children_grads_accounted_for() or
+                 grad_origin is None)):
 
             if self.creation_op == "add":
                 self.creators[0].backward(self.grad, self)
