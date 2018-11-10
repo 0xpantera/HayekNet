@@ -37,6 +37,8 @@ class Tensor(object):
 
     def backward(self, grad=None, grad_origin=None):
         if self.autograd:
+            if grad is None:
+                grad = Tensor(np.ones_like(self.data))
             # Check if we can backprop or are still awaiting gradients
             if grad_origin is not None:
                 if self.children[grad_origin.id] == 0:
@@ -44,11 +46,11 @@ class Tensor(object):
                 else:
                     self.children[grad_origin.id] -= 1
 
-        # Accumulate gradients from several children
-        if self.grad is None:
-            self.grad = grad
-        else:
-            self.grad += grad
+            # Accumulate gradients from several children
+            if self.grad is None:
+                self.grad = grad
+            else:
+                self.grad += grad
 
         # grads must not have grads of their own
         assert grad.autograd is False
@@ -65,9 +67,6 @@ class Tensor(object):
                 self.creators[0].backward(self.grad, self)
                 self.creators[1].backward(self.grad, self)
 
-            if self.creation_op == "neg":
-                self.creators[0].backward(self.grad.__neg__())
-
             if self.creation_op == "sub":
                 self.creators[0].backward(Tensor(self.grad.data), self)
                 self.creators[1].backward(Tensor(self.grad
@@ -82,13 +81,13 @@ class Tensor(object):
             if self.creation_op == "matmul":
                 c0 = self.creators[0]
                 c1 = self.creators[1]
-                new = self.grad.matmul(c1.T)
+                new = self.grad.matmul(c1.transpose())
                 c0.backward(new)
-                new = self.grad.T.matmul(c0).T
+                new = self.grad.transpose().matmul(c0).transpose()
                 c1.backward(new)
 
             if self.creation_op == "transpose":
-                self.creators[0].backward(self.grad.T)
+                self.creators[0].backward(self.grad.transpose())
 
             if "sum" in self.creation_op:
                 dim = int(self.creation_op.split("_")[1])
@@ -166,22 +165,22 @@ class Tensor(object):
 
     def transpose(self):
         if self.autograd:
-            return Tensor(self.data.T,
+            return Tensor(self.data.transpose(),
                           autograd=True,
                           creators=[self],
                           creation_op="transpose")
 
         else:
-            return Tensor(self.data.T)
+            return Tensor(self.data.transpose())
 
-    def matmul(self, other):
+    def matmul(self, x):
         if self.autograd:
-            return Tensor(np.dot(self.data, other.data),
+            return Tensor(self.data.dot(x.data),
                           autograd=True,
-                          creators=[self, other],
+                          creators=[self, x],
                           creation_op="matmul")
         else:
-            return Tensor(np.dot(self.data, other.data))
+            return Tensor(self.data.dot(x.data))
 
     def __repr__(self):
         show_shape = self.data.shape
