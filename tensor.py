@@ -84,6 +84,67 @@ class Tensor(object):
         else:
             return Tensor(self.data * -1)
 
+    def __sub__(self, other):
+        if self.autograd and other.autograd:
+            return Tensor(self.data - other.data,
+                          autograd=True,
+                          creators=[self, other],
+                          creation_op="sub")
+        else:
+            return Tensor(self.data - other.data)
+
+    def __mul__(self, other):
+        if self.autograd and other.autograd:
+            return Tensor(self.data * other.data,
+                          autograd=True,
+                          creators=[self, other],
+                          creation_op="mul")
+        else:
+            return Tensor(self.data * other.data)
+
+    def sum(self, dim):
+        if self.autograd:
+            return Tensor(self.data.sum(dim),
+                          autograd=True,
+                          creators=[self],
+                          creation_op=f"sum_{dim}")
+        else:
+            return Tensor(self.data.sum(dim))
+
+    def expand(self, dim, copies):
+        trans_cmd = list(range(0, len(self.data.shape)))
+        trans_cmd.insert(dim, len(self.data.shape))
+        new_shape = list(self.data.shape) + [copies]
+        new_data = self.data.repeat(copies).reshape(new_shape)
+        new_data = new_data.transpose(trans_cmd)
+
+        if self.autograd:
+            return Tensor(new_data,
+                          autograd=True,
+                          creators=[self],
+                          creation_op=f"expand_{dim}")
+        else:
+            return Tensor(new_data)
+
+    def transpose(self):
+        if self.autograd:
+            return Tensor(self.data.T,
+                          autograd=True,
+                          creators=[self],
+                          creation_op="transpose")
+
+        else:
+            return Tensor(self.data.T)
+
+    def matmul(self, other):
+        if self.autograd:
+            return Tensor(np.dot(self.data, other.data),
+                          autograd=True,
+                          creators=[self, other]
+                          creation_op="matmul")
+        else:
+            return Tensor(np.dot(self.data, other.data))
+
     def __repr__(self):
         show_shape = self.data.shape
         show_id = self.id.__repr__()
