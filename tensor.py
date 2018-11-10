@@ -65,7 +65,44 @@ class Tensor(object):
                 self.creators[0].backward(self.grad, self)
                 self.creators[1].backward(self.grad, self)
 
-            if self.creation_op == "neg":
+            elif self.creation_op == "neg":
+                self.creators[0].backward(self.grad.__neg__())
+
+            elif self.creation_op == "sub":
+                self.creators[0].backward(Tensor(self.grad.data), self)
+                self.creators[1].backward(Tensor(self.grad.data), self)
+
+            elif self.creation_op == "mul":
+                new = self.grad * self.creators[1]
+                self.creators[0].backward(new, self)
+                new = self.grad * self.creators[0]
+                self.creators[1].backward(new, self)
+
+            elif self.creation_op == "matmul":
+                c0 = self.creators[0]
+                c1 = self.creators[1]
+                new = self.grad.matmul(c1.T)
+                c0.backward(new)
+                new = self.grad.T.matmul(c0).T
+                c1.backward(new)
+
+            elif self.creation_op == "transpose":
+                self.creators[0].backward(self.grad.T)
+
+            elif "sum" in self.creation_op:
+                dim = int(self.creation_op.split("_")[1])
+                self.creators[0].backward(self
+                                          .grad
+                                          .expand(dim, self
+                                                  .creators
+                                                  .data
+                                                  .shape[dim]))
+
+            elif "expand" in self.creation_op:
+                dim = int(self.creation_op.split("_")[1])
+                self.creators[0].backward(self.grad.sum(dim))
+
+            elif self.creation_op == "neg":
                 self.creators[0].backward(self.grad.__neg__())
 
     def __add__(self, other):
