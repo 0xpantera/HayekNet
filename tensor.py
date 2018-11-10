@@ -177,7 +177,7 @@ class Tensor(object):
         if self.autograd:
             return Tensor(np.dot(self.data, other.data),
                           autograd=True,
-                          creators=[self, other]
+                          creators=[self, other],
                           creation_op="matmul")
         else:
             return Tensor(np.dot(self.data, other.data))
