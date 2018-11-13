@@ -1,26 +1,25 @@
-from tensor import Tensor, SGD
+from tensor import Tensor, SGD, Sequential, Linear, MSELoss
 import numpy as np
 np.random.seed(0)
 
 data = Tensor(np.array([[0, 0], [0, 1], [1, 0], [1, 1]]), autograd=True)
 target = Tensor(np.array([[0], [1], [0], [1]]), autograd=True)
 
-w = list()
-w.append(Tensor(np.random.rand(2, 3), autograd=True))
-w.append(Tensor(np.random.rand(3, 1), autograd=True))
+model = Sequential([Linear(2, 3), Linear(3, 1)])
+criterion = MSELoss()
 
-optim = SGD(parameters=w, alpha=0.1)
+optim = SGD(parameters=model.get_parameters(), alpha=0.1)
 
 for i in range(10):
 
     # Predict
-    pred = data.matmul(w[0]).matmul(w[1])
+    pred = model.forward()
 
     # Compare
-    loss = ((pred - target)*(pred - target)).sum(0)
+    loss = criterion.forward(pred, target)
 
     # Learn
-    loss.backward(Tensor(np.ones_like(loss.data)))
+    loss.backward()
     optim.step()
 
     print(loss)
