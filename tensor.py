@@ -206,10 +206,10 @@ class SGD(object):
 
     def zero(self):
         for param in self.parameters:
-            p.grad.data *= 0
+            param.grad.data *= 0
 
     def step(self, zero=True):
         for param in self.parameters:
-            p.data -= p.grad.data * self.alpha
+            param.data -= param.grad.data * self.alpha
             if zero:
-                p.grad.data *= 0
+                param.grad.data *= 0
