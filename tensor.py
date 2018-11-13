@@ -213,3 +213,29 @@ class SGD(object):
             param.data -= param.grad.data * self.alpha
             if zero:
                 param.grad.data *= 0
+
+
+class Layer(object):
+
+    def __init__(self):
+        self.parameters = []
+
+    def get_parameters(self):
+        return self.parameters
+
+
+class Linear(Layer):
+
+    def __init__(self, n_inputs, n_outputs):
+        super().__init__()
+        W = np.random.randn(n_inputs, n_outputs) * np.sqrt(2/n_inputs)
+        self.weight = Tensor(W, autograd=True)
+        self.bias = Tensor(np.zeros(n_outputs), autograd=True)
+
+        self.parameters.append(self.weight)
+        self.parameters.append(self.bias)
+
+    def forward(self, inputs):
+        in_weights = inputs.matmul(self.weight)
+        in_bias = self.bias.expand(0, len(inputs.data))
+        return in_weights + in_bias
