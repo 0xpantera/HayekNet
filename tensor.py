@@ -196,3 +196,20 @@ class Tensor(object):
 
     def __str__(self):
         return str(self.data.__str__())
+
+
+class SGD(object):
+
+    def __init__(self, parameters, alpha=0.1):
+        self.parameters = parameters
+        self.alpha = alpha
+
+    def zero(self):
+        for param in self.parameters:
+            p.grad.data *= 0
+
+    def step(self, zero=True):
+        for param in self.parameters:
+            p.data -= p.grad.data * self.alpha
+            if zero:
+                p.grad.data *= 0
