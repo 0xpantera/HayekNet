@@ -239,3 +239,25 @@ class Linear(Layer):
         in_weights = inputs.matmul(self.weight)
         in_bias = self.bias.expand(0, len(inputs.data))
         return in_weights + in_bias
+
+
+class Sequential(Layer):
+
+    def __init__(self, layers=[]):
+        super().__init__()
+
+        self.layers = layers
+
+    def add(self, layer):
+        self.layers.append(layer)
+
+    def forward(self, inputs):
+        for layer in self.layers:
+            inputs = layer.forward(inputs)
+        return inputs
+
+    def get_parameters(self):
+        params = []
+        for layer in self.layers:
+            params += layer.get_parameters()
+        return params
