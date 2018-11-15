@@ -358,3 +358,21 @@ class ReLU(Layer):
 
     def forward(self, inputs):
         return inputs.relu()
+
+
+class Embedding(Layer):
+
+    def __init__(self, vocab_size, dim):
+        super().__init__()
+
+        self.vocab_size = vocab_size
+        self.dim = dim
+
+        # Word2Vec convention
+        self.weight = Tensor((np.random.rand(vocab_size, dim) - 0.5)
+                             / dim, autograd=True)
+
+        self.parameters.append(self.weight)
+
+    def forward(self, inputs):
+        return self.weight.index_select(inputs)
