@@ -111,7 +111,7 @@ class Tensor(object):
                                               (self * (ones - self)))
 
                 if self.creation_op == "tanh":
-                    ones = Tensor(np.ones_like(self.grad_data))
+                    ones = Tensor(np.ones_like(self.grad.data))
                     self.creators[0].backward(self.grad *
                                               (ones - (self * self)))
 
