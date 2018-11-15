@@ -115,6 +115,11 @@ class Tensor(object):
                     self.creators[0].backward(self.grad *
                                               (ones - (self * self)))
 
+                if self.creation_op == "relu":
+                    ones = Tensor(np.ones_like(self.grad.data))
+                    self.creators[0].backward(self.grad *
+                                              (ones * (self > 0)))
+
     def __add__(self, other):
         if self.autograd and other.autograd:
             return Tensor(self.data + other.data,
