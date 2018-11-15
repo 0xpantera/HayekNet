@@ -186,6 +186,24 @@ class Tensor(object):
         else:
             return Tensor(np.dot(self.data, other.data))
 
+    def sigmoid(self):
+        if self.autograd:
+            return Tensor(1 / (1 + np.exp(-self.data)),
+                          autograd=True,
+                          creators=[self],
+                          creation_op="sigmoid")
+        else:
+            return Tensor(1 / (1 + np.exp(-self.data)))
+
+    def tanh(self):
+        if self.autograd:
+            return Tensor(np.tanh(self.data),
+                          autograd=True,
+                          creators=[self],
+                          creation_op="tanh")
+        else:
+            return Tensor(np.tanh(self.data))
+
     def __repr__(self):
         show_shape = self.data.shape
         show_id = self.id.__repr__()
