@@ -105,7 +105,7 @@ class Tensor(object):
                 if self.creation_op == "neg":
                     self.creators[0].backward(self.grad.__neg__())
 
-                if self.cration_op == "sigmoid":
+                if self.creation_op == "sigmoid":
                     ones = Tensor(np.ones_like(self.grad.data))
                     self.creators[0].backward(self.grad *
                                               (self * (ones - self)))
