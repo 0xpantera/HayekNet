@@ -214,6 +214,15 @@ class Tensor(object):
         else:
             return Tensor(np.tanh(self.data))
 
+    def relu(self):
+        if self.autograd:
+            return Tensor(self.data * (self.data > 0),
+                          autograd=True,
+                          creators=[self],
+                          creation_op="relu")
+        else:
+            return Tensor(self.data * (self.data > 0))
+
     def __repr__(self):
         show_shape = self.data.shape
         show_id = self.id.__repr__()
