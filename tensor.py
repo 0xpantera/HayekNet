@@ -360,6 +360,15 @@ class MSELoss(Layer):
         return ((pred - target) * (pred - target)).sum(0)
 
 
+class CrossEntropyLoss(Layer):
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, inputs, target):
+        return inputs.cross_entropy(target)
+
+
 class Tanh(Layer):
 
     def __init__(self):
