@@ -128,6 +128,10 @@ class Tensor(object):
                         new_grad[indices_[i]] += grad_[i]
                     self.creators[0].backward(Tensor(new_grad))
 
+                if self.creation_op == "cross_entropy":
+                    dx = self.softmax_output - self.target_dist
+                    self.creators[0].backward(Tensor(dx))
+
     def __add__(self, other):
         if self.autograd and other.autograd:
             return Tensor(self.data + other.data,
