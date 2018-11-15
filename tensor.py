@@ -124,7 +124,7 @@ class Tensor(object):
                     new_grad = np.zeros_like(self.creators[0].data)
                     indices_ = self.index_select_indices.data.flatten()
                     grad_ = grad.data.reshape(len(indices_), -1)
-                    for i in range(len(indices)):
+                    for i in range(len(indices_)):
                         new_grad[indices_[i]] += grad_[i]
                     self.creators[0].backward(Tensor(new_grad))
 
