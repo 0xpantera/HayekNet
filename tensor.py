@@ -312,3 +312,30 @@ class MSELoss(Layer):
 
     def forward(self, pred, target):
         return ((pred - target) * (pred - target)).sum(0)
+
+
+class Tanh(Layer):
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, inputs):
+        return inputs.tanh()
+
+
+class Sigmoid(Layer):
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, inputs):
+        return inputs.sigmoid()
+
+
+class ReLU(Layer):
+
+    def __init__(self):
+        super().__init()
+
+    def forward(self, inputs):
+        return inputs.relu()
